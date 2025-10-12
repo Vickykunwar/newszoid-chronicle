@@ -1,0 +1,94 @@
+/* System Status Bar Styles */
+.system-status-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
+
+.status-item {
+    position: relative;
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.status-item:hover .status-details {
+    display: block;
+}
+
+.status-icon {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+.status-text {
+    color: var(--text-primary);
+}
+
+.status-details {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    min-width: 200px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.status-details div {
+    padding: 3px 0;
+    color: var(--text-secondary);
+}
+
+/* Performance Status Colors */
+#performanceStatus.excellent .status-text { color: #4CAF50; }
+#performanceStatus.good .status-text { color: #8BC34A; }
+#performanceStatus.fair .status-text { color: #FFC107; }
+#performanceStatus.poor .status-text { color: #FF5722; }
+
+/* Cache Status Colors */
+#cacheStatus .fresh { color: #4CAF50; }
+#cacheStatus .stale { color: #FFC107; }
+#cacheStatus .empty { color: #FF5722; }
+
+/* Error Status Colors */
+#errorStatus.healthy { color: #4CAF50; }
+#errorStatus.warning { color: #FFC107; }
+#errorStatus.critical { color: #FF5722; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .system-status-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .status-item {
+        width: 100%;
+        text-align: center;
+    }
+
+    .status-details {
+        position: static;
+        display: none;
+        margin-top: 10px;
+    }
+}
+
+/* Dark Mode Adjustments */
+.dark-mode .system-status-bar {
+    background: var(--dark-bg-secondary);
+}
+
+.dark-mode .status-details {
+    background: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
