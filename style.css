@@ -97,8 +97,8 @@ body {
 */
 
 .newspaper-container {
-    max-width: 1200px;
-    min-height: 100vh;
+    max-width: 750px;
+    min-height: 900vh;
     margin: 0 auto;
     background-color: var(--primary-bg);
     padding: 20px;
@@ -2669,6 +2669,49 @@ body.colorful-theme .newspaper-title {
     border: 2px solid var(--primary-bg);
     animation: pulse 2s infinite;
 }
+/* Responsive Fix for Mobile Screens */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  button, .btn {
+    width: 100%;
+    max-width: 320px;
+    margin: 8px auto;
+  }
+
+  .location-box, .info-box, .featured-article {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+@media (max-width: 768px) {
+  .container, .location-box, .poll-section, .featured-article {
+    width: 95%;
+    max-width: 100%;
+  }
+  h1 { font-size: 22px; }
+  p, span { font-size: 15px; }
+  button { width: 100%; max-width: 320px; }
+}
+
 
 
 
