@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Newszoid Chronicle - Your source for latest news and updates">
+    <meta name="author" content="Newszoid Chronicle">
+    <title>Newszoid Chronicle</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="status-styles.css">
+    <link rel="stylesheet" href="navigation-style.css">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Scripts -->
+    <script src="autonomous.js" defer></script>
+    <script src="analytics.js" defer></script>
+    <script src="firebase-init.js" defer></script>
+    <script src="navigation-script.js" defer></script>
+    <script src="auth-client.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="service-worker.js" defer></script>
+    <script src="bookmark.js" defer></script>
+</head>
+
+<body>
+    <!-- Overlay for Sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar Menu -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Newszoid Chronicle</h2>
+            <button class="close-btn" id="closeSidebar" aria-label="Close sidebar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="sidebar-item" id="sidebarDarkMode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <span data-en="Dark Mode" data-hi="डार्क मोड">Dark Mode</span>
+                <span class="toggle-indicator" id="darkModeIndicator" data-en="Off" data-hi="बंद">Off</span>
+            </a>
+
+            <a href="#" class="sidebar-item" id="sidebarLocation">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span data-en="Change Location" data-hi="स्थान बदलें">Change Location</span>
+            </a>
+
+            <a href="ABOUT.HTML" class="sidebar-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4M12 8h.01"></path>
+                </svg>
+                <span data-en="About" data-hi="हमारे बारे में">About</span>
+            </a>
+
+            <a href="#" class="sidebar-item" id="downloadEditionBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3v12"></path>
+                  <path d="M6 12l6 6 6-6"></path>
+                  <path d="M5 21h14"></path>
+              </svg>
+              <span data-en="Download Edition" data-hi="अख़बार डाउनलोड करें">Download Edition</span>
+           </a>
+
+
+            <a href="#" class="sidebar-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span data-en="Notifications" data-hi="सूचनाएं">Notifications</span>
+            </a>
+
+            <button id="enableNotifications" class="sidebar-btn">Enable Notifications</button>
+            <button id="migrateBookmarksBtn" class="sidebar-btn">
+                Import Local Saved Articles
+            </button>
+            <a href="profile.html" class="sidebar-btn">Profile</a>
+
+
+            <a href="#" class="sidebar-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span data-en="Help & Support" data-hi="मदद और सहायता">Help & Support</span>
+            </a>
+
+            <section id="savedSection" aria-labelledby="savedTitle">
+                <h3 id="savedTitle" data-en="Saved Articles" data-hi="सहेजे गए लेख">Saved Articles</h3>
+                <div id="savedArticlesList" class="saved-articles-list"></div>
+                <div id="noSavedPlaceholder" class="empty" style="display:none;" data-en="No saved articles yet." data-hi="अभी तक कोई सहेजे गए लेख नहीं हैं।">No saved articles yet.</div>
+            </section>
+        </nav>
+
+        <a href="#advertise" class="sidebar-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            <span data-en="Advertise With Us" data-hi="हमारे साथ विज्ञापन करें">Advertise With Us</span>
+        </a>
+
+        <div class="sidebar-footer">
+            <p>© 2025 Newszoid Chronicle</p>
+            <p data-en="The Future of Newspapers, Now." data-hi="अखबारों का भविष्य, अब।">The Future of Newspapers, Now.</p>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>    <div class="logo">
+        <a href="/" class="logo-link">
+            <picture>
+                <!-- Light mode -->
+                <source srcset="https://via.placeholder.com/150x50/000000/FFFFFF?text=Newszoid"
+                    media="(prefers-color-scheme: light)">
+                <!-- Dark mode -->
+                <source srcset="https://via.placeholder.com/150x50/FFFFFF/000000?text=Newszoid"
+                    media="(prefers-color-scheme: dark)">
+                <img src="https://via.placeholder.com/150x50/000000/FFFFFF?text=Newszoid" alt="Newszoid Chronicle Logo"
+                    class="logo-img">
+            </picture>
+        </a>
+    </div>
+    </div>
+
+    <div class="header-right">
+        <button class="header-btn" id="translateBtn" aria-label="Toggle language">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path
+                    d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                </path>
+            </svg>
+            <span class="btn-text" data-en="English" data-hi="हिन्दी">English</span>
+        </button>
+
+        
+
+        <div id="userInfo" class="user-info" style="display: none;">
+            <span id="userName" class="user-name"></span>
+            <button class="header-btn logout-btn" id="logoutBtn" aria-label="Logout">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </button>
+        </div>
+
+        <button class="header-btn login-btn" id="loginBtn" aria-label="Login">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="btn-text" data-en="Login" data-hi="लॉगिन">Login</span>
+        </button>
+    </div>
+    </header>
+
+    <div class="category-nav-wrapper">
+        <div class="nav-gradient-left"></div>
+        <button class="nav-arrow nav-arrow-prev" id="navPrevBtn" aria-label="Scroll left">
+            <svg viewBox="0 0 24 24">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <div class="category-nav"></div>
+        <button class="nav-arrow nav-arrow-next" id="navNextBtn" aria-label="Scroll right">
+            <svg viewBox="0 0 24 24">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        <div class="nav-gradient-right"></div>
+    </div>
+    </div>
+
+    <!-- Main Content Wrapper (adjusted for fixed header) -->
+    <div class="newspaper-container">
+
+        <!-- Location Status Display -->
+        <div class="location-status" id="locationStatus">
+            <span class="location-icon">Location</span>
+            <span id="currentLocation" data-en="Detecting location..." data-hi="स्थान का पता लगा रहे हैं...">Detecting
+                location...</span>
+            <button id="changeLocationBtn" class="change-location-btn" data-en="Change" data-hi="बदलें">Change</button>
+        </div>
+
+        <div class="info-bar" role="contentinfo">
+            <span class="location" data-en="New Delhi, India" data-hi="नई दिल्ली, भारत">New Delhi, India</span>
+            <span class="issue" data-en="Vol. 1, Issue 34" data-hi="खंड 1, अंक 34">Vol. 1, Issue 34</span>
+            <span class="date" id="currentDate">Sunday, November 09, 2025</span>
+        </div>
+
+        <!-- Location Selection Modal -->
+        <div id="locationModal" class="modal" role="dialog" aria-labelledby="locationModalTitle" aria-hidden="true">
+            <div class="modal-content">
+                <span class="close" aria-label="Close location modal">&times;</span>
+                <h2 id="locationModalTitle" data-en="Select Your Location" data-hi="अपना स्थान चुनें">Select Your
+                    Location</h2>
+                <div class="location-search">
+                    <input type="text" id="locationSearch" placeholder="Search for your city..."
+                        data-en-placeholder="Search for your city..." data-hi-placeholder="अपने शहर को खोजें...">
+                    <div id="locationSuggestions" class="location-suggestions"></div>
+                </div>
+                <div class="popular-cities">
+                    <h3 data-en="Popular Cities" data-hi="प्रमुख शहर">Popular Cities</h3>
+                    <div class="cities-grid" id="popularCities">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <button id="useCurrentLocationBtn" class="location-detect-btn" data-en="Use Current Location"
+                    data-hi="वर्तमान स्थान का उपयोग करें">Use Current Location</button>
+            </div>
+        </div>
+
+        <main class="main-content" role="main">
+            <!-- Local News Section -->
+            <section class="local-news-section" id="localNewsSection">
+                <div class="section-header">
+                    <span class="section-label" data-en="Local News" data-hi="स्थानीय समाचार">Local News</span>
+                    <span class="location-badge" id="localNewsBadge">Delhi</span>
+                    <button class="translate-btn" id="localNewsTranslateBtn" aria-label="Translate local news">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path
+                                d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
+                        </svg>
+                        <span data-en="EN" data-hi="HI">EN</span>
+                    </button>
+                </div>
+                <div class="local-news-content" id="localNewsContent">
+                    <div class="loading-local-news" data-en="Loading local news..."
+                        data-hi="स्थानीय समाचार लोड हो रहे हैं...">Loading local news...</div>
+                </div>
+            </section>
+
+            <section class="special-day-section">
+                <div class="section-header">
+                    <span class="section-label" data-en="What's the Day Today?" data-hi="आज कौन सा दिन है?">What's the
+                        Day Today?</span>
+                </div>
+                <div class="special-day-content">
+                    <div class="special-day-icon" aria-hidden="true">Calendar</div>
+                    <div class="special-day-info">
+                        <h2 id="specialDayTitle" data-en="Loading..." data-hi="लोड हो रहा है...">Loading...</h2>
+                        <p id="specialDayDescription"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weather Widget -->
+            <section class="weather-section" id="weatherSection">
+                <div class="section-header">
+                    <span class="section-label" data-en="Weather" data-hi="मौसम">Weather</span>
+                    <span class="weather-location" id="weatherLocation">Delhi</span>
+                </div>
+                <div class="weather-content" id="weatherContent">
+                    <div class="loading-weather" data-en="Loading weather..."
+                        data-hi="मौसम की जानकारी लोड हो रही है...">
+                        Loading weather...</div>
+                </div>
+            </section>
+
+            <div class="main-grid">
+                <div class="left-column">
+                    <div class="section-header" data-en="TOP STORY" data-hi="मुख्य समाचार">TOP STORY</div>
+
+                    <article class="main-story">
+                        <img data-src="https://www.devdiscourse.com/remote.axd?https://devdiscourse.blob.core.windows.net/aiimagegallery/17_03_2025_15_55_24_7359209.png?width=920&format=jpeg"
+                            alt="Government officials discussing political changes" class="story-image lazy"
+                            loading="lazy">
+                        <h2 class="story-headline" data-en="Political Shake-up: A New Era Begins"
+                            data-hi="राजनीतिक फेरबदल: एक नए युग की शुरुआत">Political Shake-up: A New Era Begins</h2>
+                        <p class="story-text"
+                            data-en="In a significant political development, a major leadership change has been announced, signaling a potential shift in national policy. The transition is expected to be finalized by next month."
+                            data-hi="एक महत्वपूर्ण राजनीतिक घटनाक्रम में, एक बड़े नेतृत्व परिवर्तन की घोषणा की गई है, जो राष्ट्रीय नीति में संभावित बदलाव का संकेत है। संक्रमण अगले महीने तक अंतिम रूप दिए जाने की उम्मीद है।">
+                            In a significant political development, a major leadership change has been announced,
+                            signaling a potential shift in national policy. The transition is expected to be finalized
+                            by next month.</p>
+
+                        <div class="social-share" role="region" aria-label="Share this article">
+                            <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                            <a href="https://twitter.com/intent/tweet?text=Political%20Shake-up:%20A%20New%20Era%20Begins&url=https://newszoid.com"
+                                class="share-btn twitter" aria-label="Share on Twitter"></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                class="share-btn facebook" aria-label="Share on Facebook"></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                            <button class="share-btn comment" aria-label="Add Comment"></button>
+                            <button class="share-btn bookmark" aria-label="Bookmark" title="Save for later">☆</button>
+                            <button class="share-btn tts" aria-label="Listen">🔊</button>
+                        </div>
+                    </article>
+
+                    <div class="secondary-stories">
+                        <article class="story-item">
+                            <h3 data-en="Daily Highlights / Top 5 News" data-hi="दैनिक हाइलाइट्स / शीर्ष 5 समाचार">Daily
+                                Highlights / Top 5 News</h3>
+                            <p data-en="1. PM Modi-Mauritian PM bilateral in Varanasi announces economic package, deepening ties."
+                                data-hi="1. वाराणसी में पीएम मोदी-मॉरीशियाई पीएम द्विपक्षीय वार्ता में आर्थिक पैकेज की घोषणा, संबंध गहरे करना।">
+                                1. PM Modi-Mauritian PM bilateral in Varanasi announces economic package, deepening
+                                ties.</p>
+                            <p data-en="2. Mutual funds AUM surges to ₹75.18 lakh crore, SIPs at record ₹28,265 crore."
+                                data-hi="2. म्यूचुअल फंड AUM ₹75.18 लाख करोड़ तक बढ़ा, SIP रिकॉर्ड ₹28,265 करोड़ पर।">2.
+                                Mutual funds AUM surges to ₹75.18 lakh crore, SIPs at record ₹28,265 crore.</p>
+                            <p data-en="3. US-India trade pivots to FTA talks from tariffs."
+                                data-hi="3. अमेरिका-भारत व्यापार टैरिफ से FTA वार्ता की ओर मुड़ा।">3. US-India trade
+                                pivots to FTA talks from tariffs.</p>
+                            <p data-en="4. Mohali bank suicide raises concerns over police accountability."
+                                data-hi="4. मोहाली बैंक आत्महत्या से पुलिस जवाबदेही पर चिंताएं बढ़ीं।">4. Mohali bank
+                                suicide raises concerns over police accountability.</p>
+
+                            <div class="social-share" role="region" aria-label="Share daily highlights">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Daily%20Highlights&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Environment" data-hi="पर्यावरण">Environment</h3>
+                            <p data-en="Climate Change Impacts Global Food Security"
+                                data-hi="जलवायु परिवर्तन का वैश्विक खाद्य सुरक्षा पर प्रभाव">Climate Change Impacts
+                                Global Food Security</p>
+                            <p data-en="Rising temperatures and changing weather patterns are affecting crop yields worldwide. Experts warn of potential food shortages and emphasize the need for sustainable farming practices."
+                                data-hi="बढ़ते तापमान और बदलते मौसम पैटर्न दुनिया भर में फसल की पैदावार को प्रभावित कर रहे हैं। विशेषज्ञ संभावित खाद्य कमी की चेतावनी देते हैं और सतत कृषि प्रथाओं की आवश्यकता पर जोर देते हैं।">
+                                Rising temperatures and changing weather patterns are affecting crop yields worldwide.
+                                Experts warn of potential food shortages and emphasize the need for sustainable farming
+                                practices.</p>
+
+                            <div class="social-share" role="region" aria-label="Share environment story">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Climate%20Change%20Food%20Security&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Education" data-hi="शिक्षा">Education</h3>
+                            <p data-en="Global Study Links Ultra-Processed Foods to Health Risks"
+                                data-hi="वैश्विक अध्ययन में अल्ट्रा-प्रोसेस्ड फूड और स्वास्थ्य जोखिम का संबंध">Global
+                                Study Links Ultra-Processed Foods to Health Risks</p>
+                            <p data-en="A comprehensive global study finds that high consumption of ultra-processed foods significantly increases the risk of heart disease, cancer, and early death. Experts emphasize the need for dietary changes."
+                                data-hi="एक व्यापक वैश्विक अध्ययन से पता चलता है कि अल्ट्रा-प्रोसेस्ड भोजन का अधिक सेवन हृदय रोग, कैंसर और समय से पहले मृत्यु का जोखिम काफी बढ़ाता है। विशेषज्ञ आहार परिवर्तनों की आवश्यकता पर जोर देते हैं।">
+                                A comprehensive global study finds that high consumption of ultra-processed foods
+                                significantly increases the risk of heart disease, cancer, and early death. Experts
+                                emphasize the need for dietary changes.</p>
+
+                            <div class="social-share" role="region" aria-label="Share education story">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Ultra-Processed%20Foods%20Health%20Risks&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Business & Finance" data-hi="व्यापार और वित्त">Business & Finance</h3>
+                            <p data-en="The Indian economy shows promising signs, with the RBI forecasting robust growth. On July 28, 2025, RBI stated that the economy is growing at a robust pace, with no challenges in achieving over 6.5% growth."
+                                data-hi="भारतीय अर्थव्यवस्था में आशाजनक संकेत दिख रहे हैं, आरबीआई ने मजबूत विकास का अनुमान लगाया है। 28 जुलाई, 2025 को, आरबीआई ने कहा कि अर्थव्यवस्था मजबूत गति से बढ़ रही है, 6.5% से अधिक विकास हासिल करने में कोई चुनौती नहीं है।">
+                                The Indian economy shows promising signs, with the RBI forecasting robust growth. On
+                                July 28, 2025, RBI stated that the economy is growing at a robust pace, with no
+                                challenges in achieving over 6.5% growth.</p>
+
+                            <div class="social-share" role="region" aria-label="Share business news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Indian%20Economy%20Growth&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Sports" data-hi="खेल">Sports</h3>
+                            <p data-en="Athletes continue to make their mark internationally in chess, golf, and athletics. In chess, Divya Deshmukh faced Koneru Humpy in tie-breaks for the Chess World Cup final on July 28, 2025."
+                                data-hi="शतरंज, गोल्फ और एथलेटिक्स में एथलीट अंतरराष्ट्रीय स्तर पर अपनी पहचान बना रहे हैं। शतरंज में, दिव्या देशमुख ने 28 जुलाई, 2025 को चेस वर्ल्ड कप फाइनल के लिए टाई-ब्रेक में कोनеру हम्पी का सामना किया।">
+                                Athletes continue to make their mark internationally in chess, golf, and athletics. In
+                                chess, Divya Deshmukh faced Koneru Humpy in tie-breaks for the Chess World Cup final on
+                                July 28, 2025.</p>
+
+                            <div class="social-share" role="region" aria-label="Share sports news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Indian%20Sports%20Achievements&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Technology & AI" data-hi="प्रौद्योगिकी और AI">Technology & AI</h3>
+                            <p data-en="Nasuni's Hyderabad hub boosts innovation in unified file data platforms."
+                                data-hi="नसुनी के हैदराबाद हब ने एकीकृत फाइल डेटा प्लेटफॉर्म में नवाचार को बढ़ावा दिया।">
+                                Nasuni's Hyderabad hub boosts innovation in unified file data platforms.</p>
+                            <p data-en="AI scams surge with voice cloning and deepfakes, leaving victims helpless."
+                                data-hi="वॉयस क्लोनिंग और डीपफेक के साथ AI स्कैम बढ़े, पीड़ित बेसहारा।">AI scams surge
+                                with voice cloning and deepfakes, leaving victims helpless.</p>
+
+                            <div class="social-share" role="region" aria-label="Share technology news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Technology%20and%20AI%20Updates&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Inflation & Economy" data-hi="महंगाई और अर्थव्यवस्था">Inflation & Economy</h3>
+                            <p data-en="Retail inflation likely rose to 2.10% in August due to fading base effects and food price hikes."
+                                data-hi="खुदरा महंगाई अगस्त में संभवतः 2.10% तक बढ़ी, आधार प्रभाव कम होने और खाद्य मूल्य वृद्धि के कारण।">
+                                Retail inflation likely rose to 2.10% in August due to fading base effects and food
+                                price hikes.</p>
+                            <p data-en="Bonds steady after selloff, with focus on upcoming inflation data and fuel price impacts."
+                                data-hi="बॉन्ड बिकवाली के बाद स्थिर, आगामी महंगाई डेटा और ईंधन मूल्य प्रभावों पर ध्यान।">
+                                Bonds steady after selloff, with focus on upcoming inflation data and fuel price
+                                impacts.</p>
+                            <p data-en="Economy grew 7.4% in Q4 FY2024-25, driven by government spending."
+                                data-hi="अर्थव्यवस्था Q4 FY2024-25 में 7.4% बढ़ी, सरकारी खर्च से प्रेरित।">Economy grew
+                                7.4% in Q4 FY2024-25, driven by government spending.</p>
+
+                            <div class="social-share" role="region" aria-label="Share economy news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Economy%20Updates&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Science & Space" data-hi="विज्ञान और अंतरिक्ष">Science & Space</h3>
+                            <p data-en="ISRO completed docking of SPADEX satellites (SDX-01 & SDX-02), with parachute trials for Gaganyaan human spaceflight planned for 2027."
+                                data-hi="ISRO ने SPADEX उपग्रहों (SDX-01 & SDX-02) की डॉकिंग पूरी की, गगनयान मानव अंतरिक्ष उड़ान के लिए पैराशूट परीक्षण 2027 के लिए निर्धारित।">
+                                ISRO completed docking of SPADEX satellites (SDX-01 & SDX-02), with parachute trials for
+                                Gaganyaan human spaceflight planned for 2027.</p>
+                            <p data-en="NASA-ISRO NISAR mission on track post-checkouts, set for science operations."
+                                data-hi="NASA-ISRO NISAR मिशन जांच के बाद ट्रैक पर, विज्ञान संचालन के लिए तैयार।">
+                                NASA-ISRO NISAR mission on track post-checkouts, set for science operations.</p>
+                            <p data-en="ISRO and JAXA to partner on Chandrayaan-5."
+                                data-hi="ISRO और JAXA चंद्रयान-5 पर साझेदारी करेंगे।">ISRO and JAXA to partner on
+                                Chandrayaan-5.</p>
+
+                            <div class="social-share" role="region" aria-label="Share space news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Science%20and%20Space%20Updates&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Legal & Judiciary" data-hi="कानूनी और न्यायपालिका">Legal & Judiciary</h3>
+                            <p data-en="Supreme Court flags delays in High Courts uploading judgments; issues notice to Kerala HC on anticipatory bail."
+                                data-hi="सुप्रीम कोर्ट ने हाई कोर्ट में फैसले अपलोड करने में देरी पर चिंता व्यक्त की; केरल HC को अग्रिम जमानत पर नोटिस जारी।">
+                                Supreme Court flags delays in High Courts uploading judgments; issues notice to Kerala
+                                HC on anticipatory bail.</p>
+                            <p data-en="Bengaluru court directs prison reforms; NCDRC criticized for delays."
+                                data-hi="बेंगलुरु कोर्ट ने जेल सुधारों का निर्देश दिया; NCDRC को देरी के लिए आलोचना।">
+                                Bengaluru court directs prison reforms; NCDRC criticized for delays.</p>
+                            <p data-en="Amendments to Supreme Court and High Court Judges Rules."
+                                data-hi="सुप्रीम कोर्ट और हाई कोर्ट के न्यायाधीशों के नियमों में संशोधन।">Amendments to
+                                Supreme Court and High Court Judges Rules.</p>
+
+                            <div class="social-share" role="region" aria-label="Share legal news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Legal%20and%20Judiciary%20Updates&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+
+                        <article class="story-item">
+                            <h3 data-en="Culture" data-hi="संस्कृति">Culture</h3>
+                            <p data-en="Prime Minister Modi called the Diwali-eve celebration aboard India’s aircraft carrier INS Vikrant “unforgettable.” Navy personnel performed patriotic songs like Kasam Sindoor Ki, blending tradition with national pride."
+                                data-hi="प्रधानमंत्री मोदी ने INS विक्रांत पर आयोजित दिवाली की पूर्व संध्या पर हुए सांस्कृतिक कार्यक्रम को अविस्मरणीय बताया। नौसेना के जवानों ने ‘कसम सिंदूर की’ जैसे देशभक्ति गीत प्रस्तुत किए।">
+                                Prime Minister Modi called the Diwali-eve celebration aboard India’s aircraft carrier
+                                INS Vikrant “unforgettable.” Navy personnel performed patriotic songs like Kasam Sindoor
+                                Ki, blending tradition with national pride.</p>
+                            <p data-en="The Indian government is launching a digital portal to streamline permissions for live shows and cultural festivals. Approvals will be granted within 15 days, boosting India’s ₹20,800 crore live entertainment industry."
+                                data-hi="भारत सरकार जल्द ही एक डिजिटल पोर्टल लॉन्च करने जा रही है जिससे लाइव शो और सांस्कृतिक उत्सवों के लिए अनुमतियाँ सिर्फ 15 दिनों में मिल सकेंगी। यह ₹20,800 करोड़ के लाइव एंटरटेनमेंट उद्योग को बढ़ावा देगा।">
+                                The Indian government is launching a digital portal to streamline permissions for live
+                                shows and cultural festivals. Approvals will be granted within 15 days, boosting India’s
+                                ₹20,800 crore live entertainment industry.</p>
+                            <div class="social-share" role="region" aria-label="Share culture news">
+                                <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text=Culture%20Updates&url=https://newszoid.com"
+                                    class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                    class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                    class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                <button class="share-btn comment" aria-label="Add Comment"></button>
+                                <button class="share-btn bookmark" aria-label="Bookmark"
+                                    title="Save for later">☆</button>
+                                <button class="share-btn tts" aria-label="Listen">🔊</button>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="section-header" data-en="WORLD" data-hi="विश्व">WORLD</div>
+
+                    <article class="world-story">
+                        <h3 data-en="Deadly Shelling Hits Residential Area in Eastern Ukraine"
+                            data-hi="पूर्वी यूक्रेन में आवासीय क्षेत्र पर घातक गोलाबारी">Deadly Shelling Hits
+                            Residential Area in Eastern Ukraine</h3>
+                        <img data-src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=180&fit=crop"
+                            alt="Damaged residential building in Eastern Ukraine" class="world-image lazy"
+                            loading="lazy">
+                        <p data-en="Recent shelling has devastated residential areas in Eastern Ukraine, causing significant casualties. The international community has condemned the attacks and called for immediate ceasefire."
+                            data-hi="हाल की गोलाबारी ने पूर्वी यूक्रेन के आवासीय क्षेत्रों को तबाह कर दिया है, भारी हताहत हुए। अंतर्राष्ट्रीय समुदाय ने हमलों की निंदा की है और तत्काल युद्धविराम की मांग की है।">
+                            Recent shelling has devastated residential areas in Eastern Ukraine, causing significant
+                            casualties. The international community has condemned the attacks and called for immediate
+                            ceasefire.</p>
+
+                        <div class="social-share" role="region" aria-label="Share Ukraine news">
+                            <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                            <a href="https://twitter.com/intent/tweet?text=Shelling%20in%20Eastern%20Ukraine&url=https://newszoid.com"
+                                class="share-btn twitter" aria-label="Share on Twitter"></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                class="share-btn facebook" aria-label="Share on Facebook"></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                            <button class="share-btn comment" aria-label="Add Comment"></button>
+                            <button class="share-btn bookmark" aria-label="Bookmark" title="Save for later">☆</button>
+                            <button class="share-btn tts" aria-label="Listen">🔊</button>
+                        </div>
+                    </article>
+
+                    <article class="story-item">
+                        <h3 data-en="Artificial Intelligence (AI)" data-hi="कृत्रिम बुद्धिमत्ता (AI)">Artificial
+                            Intelligence (AI)</h3>
+                        <p data-en="New AI Model Generates Images from Text Descriptions"
+                            data-hi="नया AI मॉडल टेक्स्ट विवरण से छवियां बनाता है">New AI Model Generates Images from
+                            Text Descriptions</p>
+                        <p data-en="A team of researchers has developed an advanced AI model that can create realistic images from text. This breakthrough technology opens new possibilities but also raises concerns about misuse."
+                            data-hi="शोधकर्ताओं की एक टीम ने एक उन्नत AI मॉडल विकसित किया है जो टेक्स्ट विवरण से यथार्थवादी छवियां बना सकता है। यह प्रगतिशील तकनीक नई संभावनाएं खोलती है लेकिन दुरुपयोग की चिंताएं भी बढ़ाती है।">
+                            A team of researchers has developed an advanced AI model that can create realistic images
+                            from text. This breakthrough technology opens new possibilities but also raises concerns
+                            about misuse.</p>
+
+                        <div class="social-share" role="region" aria-label="Share AI news">
+                            <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                            <a href="https://twitter.com/intent/tweet?text=New%20AI%20Model%20Images&url=https://newszoid.com"
+                                class="share-btn twitter" aria-label="Share on Twitter"></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                class="share-btn facebook" aria-label="Share on Facebook"></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                            <button class="share-btn comment" aria-label="Add Comment"></button>
+                            <button class="share-btn bookmark" aria-label="Bookmark" title="Save for later">☆</button>
+                            <button class="share-btn tts" aria-label="Listen">🔊</button>
+                        </div>
+                    </article>
+
+                    <article class="story-item">
+                        <h3 data-en="Global Finance" data-hi="वैश्विक वित्त">Global Finance</h3>
+                        <p data-en="Inflation Surges to 40-Year High in the US"
+                            data-hi="अमेरिका में महंगाई 40 साल के उच्चतम स्तर पर">Inflation Surges to 40-Year High in
+                            the US</p>
+                        <p data-en="A team of researchers have documented significant economic challenges facing the country. High inflation rates continue to impact millions, suggesting the economy is entering a potential recession."
+                            data-hi="शोधकर्ताओं की एक टीम ने देश के सामने महत्वपूर्ण आर्थिक चुनौतियों का दस्तावेजीकरण किया है। उच्च महंगाई दरें लाखों लोगों को प्रभावित कर रही हैं, जो अर्थव्यवस्था के संभावित मंदी में प्रवेश का संकेत देती हैं।">
+                            A team of researchers have documented significant economic challenges facing the country.
+                            High inflation rates continue to impact millions, suggesting the economy is entering a
+                            potential recession.</p>
+
+                        <div class="social-share" role="region" aria-label="Share inflation story">
+                            <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                            <a href="https://twitter.com/intent/tweet?text=Inflation%20Surges%20to%2040-Year%20High&url=https://newszoid.com"
+                                class="share-btn twitter" aria-label="Share on Twitter"></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                class="share-btn facebook" aria-label="Share on Facebook"></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                            <button class="share-btn comment" aria-label="Add Comment"></button>
+                            <button class="share-btn bookmark" aria-label="Bookmark" title="Save for later">☆</button>
+                            <button class="share-btn tts" aria-label="Listen">🔊</button>
+                        </div>
+                    </article>
+
+                    <div class="quote-section">
+                        <div class="section-header" data-en="QUOTE" data-hi="उद्धरण">QUOTE</div>
+                        <blockquote class="daily-quote"
+                            data-en="The future belongs to those who believe in the beauty of their dreams."
+                            data-hi="भविष्य उनका है जो अपने सपनों की सुंदरता में विश्वास रखते हैं।">
+                            "The future belongs to those who believe in the beauty of their dreams."
+                            <footer>- Eleanor Roosevelt</footer>
+                        </blockquote>
+                    </div>
+
+                    <article class="story-item">
+                        <h3 data-en="Health" data-hi="स्वास्थ्य">Health</h3>
+                        <p data-en="According to WHO and Indian experts highlight that mental health services remain out of reach for most, despite growing awareness. The Economic Survey 2024–25 urges placing mental well-being at the center of policy."
+                            data-hi="WHO और भारतीय विशेषज्ञों के अनुसार, बढ़ती जागरूकता के बावजूद मानसिक स्वास्थ्य सेवाएं अधिकांश लोगों की पहुंच से बाहर हैं। आर्थिक सर्वेक्षण 2024–25 ने मानसिक कल्याण को नीति के केंद्र में रखने का आग्रह किया है।">
+                            According to WHO and Indian experts highlight that mental health services remain out of
+                            reach for most, despite growing awareness. The Economic Survey 2024–25 urges placing mental
+                            well-being at the center of policy.</p>
+                        <p data-en="Raisins are rich in antioxidants, fiber, and natural sugars. They help improve digestion, energy levels, and blood sugar control. Widely used in Indian cuisine, they’re also valued in Ayurvedic remedies."
+                            data-hi="किशमिश में एंटीऑक्सीडेंट, फाइबर और प्राकृतिक शर्करा भरपूर मात्रा में होती है। ये पाचन सुधारने, ऊर्जा स्तर बढ़ाने और रक्त शर्करा नियंत्रण में मदद करती हैं। भारतीय व्यंजनों में इनका व्यापक उपयोग होता है और आयुर्वेदिक उपचारों में भी इनकी विशेष मान्यता है।">
+                            Raisins are rich in antioxidants, fiber, and natural sugars. They help improve digestion,
+                            energy levels, and blood sugar control. Widely used in Indian cuisine, they’re also valued
+                            in Ayurvedic remedies.</p>
+
+                        <div class="social-share" role="region" aria-label="Share health news">
+                            <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                            <a href="https://twitter.com/intent/tweet?text=Health%20Updates&url=https://newszoid.com"
+                                class="share-btn twitter" aria-label="Share on Twitter"></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                class="share-btn facebook" aria-label="Share on Facebook"></a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                            <button class="share-btn comment" aria-label="Add Comment"></button>
+                            <button class="share-btn bookmark" aria-label="Bookmark" title="Save for later">☆</button>
+                            <button class="share-btn tts" aria-label="Listen">🔊</button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <section class="stock-market-section">
+                <div class="section-header" data-en="Indian Stock Market" data-hi="भारतीय शेयर बाजार">Indian Stock
+                    Market</div>
+                <div id="stockData" class="stock-container">
+                    <p data-en="Loading live market data..." data-hi="लाइव मार्केट डेटा लोड हो रहा है...">Loading live
+                        market data...</p>
+                </div>
+            </section>
+
+            <section class="competition-section">
+                <div class="section-header">
+                    <span class="section-label" data-en="Competition Corner" data-hi="प्रतियोगिता कॉर्नर">Competition
+                        Corner</span>
+                </div>
+                <div class="competition-content">
+                    <div class="winner-info">
+                        <h5 data-en="Current Leader" data-hi="वर्तमान लीडर">Current Leader</h5>
+                        <div class="winner-card">
+                            <img data-src="https://placehold.co/100x100/a9a9a9/fff?text=Priya"
+                                alt="Profile picture of current winner Priya Sharma" class="winner-photo lazy"
+                                loading="lazy">
+                            <div class="winner-details">
+                                <span class="winner-name">Priya Sharma</span>
+                                <span class="winner-score" data-en="Score: 92/100" data-hi="स्कोर: 92/100">Score:
+                                    92/100</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="competition-info">
+                        <h4 id="competitionTheme" data-en="This Month's Theme: Indian Constitution"
+                            data-hi="इस महीने की थीम: भारतीय संविधान">This Month's Theme: Indian Constitution</h4>
+                        <p id="competitionDescription"
+                            data-en="Test your knowledge of the Indian Constitution and win exciting prizes!"
+                            data-hi="भारतीय संविधान के अपने ज्ञान का परीक्षण करें और रोमांचक पुरस्कार जीतें!">Test your
+                            knowledge of the Indian Constitution and win exciting prizes!</p>
+                        <div class="countdown">
+                            <span id="countdownText" data-en="Time left to participate:"
+                                data-hi="भाग लेने के लिए शेष समय:">Time left to participate:</span>
+                            <span id="countdownTimer" data-en="Loading..." data-hi="लोड हो रहा है...">Loading...</span>
+                        </div>
+                        <button id="participateBtn" class="competition-btn" data-en="Participate Now"
+                            data-hi="अभी भाग लें">Participate Now</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="competitionSection" aria-labelledby="competitionTitle">
+                <h3 id="competitionTitle">Leaderboard</h3>
+                <div id="leaderboardContainer" class="leaderboard-container"></div>
+                <div id="leaderboardControls">
+                    <button id="clearLeaderboardBtn" class="control-btn">Clear Leaderboard (dev)</button>
+                </div>
+            </section>
+
+            <section class="theme-section">
+                <h2 data-en="This Month's Theme Day-1: Constitution & History"
+                    data-hi="इस महीने की थीम दिवस-1: संविधान और इतिहास">This Month's Theme Day-1: Constitution & History
+                </h2>
+                <div class="theme-columns">
+                    <div class="theme-column india">
+                        <h3 data-en="India Updates" data-hi="भारत अपडेट">India Updates</h3>
+                        <ul id="indiaNews" aria-label="India news updates"></ul>
+                    </div>
+                    <div class="theme-column world">
+                        <h3 data-en="World Updates" data-hi="विश्व अपडेट">World Updates</h3>
+                        <ul id="worldNews" aria-label="World news updates"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="poll-section" class="poll-section">
+                <div class="section-header">
+                    <span class="section-label" data-en="Weekly Poll" data-hi="साप्ताहिक सर्वेक्षण">Weekly Poll</span>
+                </div>
+                <div id="poll-container" aria-live="polite">
+                    <!-- Poll content will be generated by JavaScript -->
+                </div>
+            </section>
+
+            <section class="trending-stories-section">
+                <div class="section-header">
+                    <span class="section-label" data-en="Trending Stories" data-hi="ट्रेंडिंग कहानियां">Trending
+                        Stories</span>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel-track">
+                        <article class="carousel-item">
+                            <img data-src="https://www.insightsonindia.com/wp-content/uploads/2021/08/STARTUP-INDIA.jpg"
+                                alt="Indian startup technology innovation" class="lazy" loading="lazy">
+                            <h3 data-en="India's Startup Boom: How Youth are Driving Innovation"
+                                data-hi="भारत का स्टार्टअप बूम: युवा कैसे नवाचार चला रहे हैं">India's Startup Boom: How
+                                Youth are Driving Innovation</h3>
+                        </article>
+                        <article class="carousel-item">
+                            <img data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=300&fit=crop"
+                                alt="Rising sea levels due to climate change" class="lazy" loading="lazy">
+                            <h3 data-en="Rising Seas: The Urgent Fight Against Climate Change"
+                                data-hi="बढ़ते समुद्र: जलवायु परिवर्तन के खिलाफ तत्काल लड़ाई">Rising Seas: The Urgent
+                                Fight Against Climate Change</h3>
+                        </article>
+                        <article class="carousel-item">
+                            <img data-src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=300&fit=crop"
+                                alt="Indian cricket team celebrating World Cup victory" class="lazy" loading="lazy">
+                            <h3 data-en="Historic Win: India Clinches World Cup Glory"
+                                data-hi="ऐतिहासिक जीत: भारत ने वर्ल्ड कप की महिमा हासिल की">Historic Win: India Clinches
+                                World Cup Glory</h3>
+                        </article>
+                        <article class="carousel-item">
+                            <img data-src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=300&fit=crop"
+                                alt="ISRO satellite launch" class="lazy" loading="lazy">
+                            <h3 data-en="ISRO's Next Giant Leap: India's Space Ambitions"
+                                data-hi="इसरो की अगली बड़ी छलांग: भारत की अंतरिक्ष महत्वाकांक्षाएं">ISRO's Next Giant
+                                Leap: India's Space Ambitions</h3>
+                        </article>
+                    </div>
+                </div>
+                <div class="carousel-controls" role="navigation" aria-label="Carousel controls">
+                    <button class="prev-btn" aria-label="Previous slide">Previous</button>
+                    <button class="next-btn" aria-label="Next slide">Next</button>
+                </div>
+            </section>
+
+            <div class="lifestyle-section">
+                <section class="quick-facts">
+                    <div class="section-header" data-en="Did You Know?" data-hi="क्या आप जानते हैं?">Did You Know?</div>
+                    <div id="factCard" class="fact-card" aria-live="polite" data-en="Loading interesting fact..."
+                        data-hi="रोचक तथ्य लोड हो रहा है...">Loading interesting fact...</div>
+                </section>
+
+                <section class="horoscope-section">
+                    <div class="section-header" data-en="Daily Horoscope" data-hi="दैनिक राशिफल">Daily Horoscope</div>
+                    <div class="zodiac-grid" id="horoscopeGrid" aria-label="Daily horoscope"></div>
+                </section>
+
+                <section class="trending-topics">
+                    <div class="section-header" data-en="Trending Now" data-hi="अभी चलन में">Trending Now</div>
+                    <div class="trending-tags" id="trendingTags" aria-label="Trending topics"></div>
+                </section>
+
+                <!-- Startups & Entertainment + Voices of Youth -->
+                <section class="dual-news-section">
+                    <div class="theme-columns">
+                        <!-- LEFT COLUMN -->
+                        <div class="theme-column india">
+                            <h3 data-en="Startups, Editorials & Youth Voices"
+                                data-hi="स्टार्टअप, संपादकीय और युवा आवाज़ें">
+                                Startups, Editorials & Youth Voices</h3>
+
+                            <!-- Startups -->
+                            <article class="world-story">
+                                <h3 data-en="Ola Electric prepares for IPO launch in early 2025"
+                                    data-hi="ओला इलेक्ट्रिक 2025 की शुरुआत में IPO लॉन्च की तैयारी कर रही है">Ola
+                                    Electric prepares for IPO launch in early 2025</h3>
+                                <p data-en="EV startup Ola Electric gears up for one of India’s largest clean-mobility IPOs amid growing investor interest in the electric vehicle sector."
+                                    data-hi="ईवी स्टार्टअप ओला इलेक्ट्रिक भारत के सबसे बड़े क्लीन-मोबिलिटी IPOs के लिए तैयार हो रही है, इलेक्ट्रिक वाहन क्षेत्र में निवेशकों की बढ़ती रुचि के बीच।">
+                                    EV startup Ola Electric gears up for one of India’s largest clean-mobility IPOs amid
+                                    growing investor interest in the electric vehicle sector.</p>
+                                <div class="social-share" role="region" aria-label="Share Ola Electric story">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=Ola%20Electric%20IPO&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+
+                            <article class="world-story">
+                                <h3 data-en="Zomato expands to 30 new cities after record profits"
+                                    data-hi="रिकॉर्ड लाभ के बाद जोमैटो 30 नए शहरों में विस्तार कर रही है">Zomato expands
+                                    to 30 new cities after record profits</h3>
+                                <p data-en="Food-tech giant Zomato announced plans to enter smaller markets as its Q3 profits exceed expectations, signaling strong post-pandemic growth."
+                                    data-hi="फूड-टेक दिग्गज जोमैटो ने छोटे बाजारों में प्रवेश की योजना की घोषणा की क्योंकि उसके Q3 लाभ अपेक्षाओं से अधिक हैं, महामारी के बाद मजबूत विकास का संकेत देते हुए।">
+                                    Food-tech giant Zomato announced plans to enter smaller markets as its Q3 profits
+                                    exceed expectations, signaling strong post-pandemic growth.</p>
+                                <div class="social-share" role="region" aria-label="Share Zomato story">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=Zomato%20Expands&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+
+                            <!-- Voices of Youth – Editorials -->
+                            <article class="world-story">
+                                <h3 data-en="Editorial: “Education is changing — are we ready to adapt?”"
+                                    data-hi="संपादकीय: “शिक्षा बदल रही है — क्या हम अनुकूलन के लिए तैयार हैं?”">
+                                    Editorial: “Education is changing — are we ready to adapt?”</h3>
+                                <p data-en="In this youth editorial, a Delhi University student reflects on the rapid shift toward technology-driven education and the importance of adapting mindsets in classrooms across India."
+                                    data-hi="इस युवा संपादकीय में, एक दिल्ली विश्वविद्यालय छात्र प्रौद्योगिकी-चालित शिक्षा की तेजी से बदलाव पर चिंतन करता है और पूरे भारत में कक्षाओं में मानसिकता अनुकूलन की महत्वपूर्णता पर।">
+                                    In this youth editorial, a Delhi University student reflects on the rapid shift
+                                    toward technology-driven education and the importance of adapting mindsets in
+                                    classrooms across India.</p>
+                                <div class="social-share" role="region" aria-label="Share Youth Editorial">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=Education%20Change&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
+                        <div class="theme-column world">
+                            <h3 data-en="Entertainment & Campus Voices" data-hi="मनोरंजन और कैंपस आवाज़ें">Entertainment
+                                & Campus Voices</h3>
+
+                            <!-- Entertainment -->
+                            <article class="world-story">
+                                <h3 data-en="Bollywood’s comeback: ‘Dreams of India’ crosses ₹500 crore"
+                                    data-hi="बॉलीवुड की वापसी: ‘ड्रीम्स ऑफ इंडिया’ ने ₹500 करोड़ पार किए">Bollywood’s
+                                    comeback: ‘Dreams of India’ crosses ₹500 crore</h3>
+                                <p data-en="The mega release “Dreams of India” becomes the highest-grossing film of 2025, restoring audience faith in theaters post-OTT boom."
+                                    data-hi="मेगा रिलीज “ड्रीम्स ऑफ इंडिया” 2025 की सबसे अधिक कमाई करने वाली फिल्म बन गई, OTT बूम के बाद थिएटरों में दर्शकों का विश्वास बहाल करते हुए।">
+                                    The mega release “Dreams of India” becomes the highest-grossing film of 2025,
+                                    restoring audience faith in theaters post-OTT boom.</p>
+                                <div class="social-share" role="region" aria-label="Share Bollywood story">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=Bollywood%20Blockbuster&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+
+                            <article class="world-story">
+                                <h3 data-en="Streaming platforms invest in regional content"
+                                    data-hi="स्ट्रीमिंग प्लेटफॉर्म क्षेत्रीय सामग्री में निवेश कर रहे हैं">Streaming
+                                    platforms invest in regional content</h3>
+                                <p data-en="Netflix and Amazon Prime ramp up regional-language shows and films as competition in India’s entertainment market intensifies."
+                                    data-hi="नेटफ्लिक्स और अमेज़न प्राइम क्षेत्रीय-भाषा शो और फिल्मों को बढ़ावा दे रहे हैं क्योंकि भारत के मनोरंजन बाजार में प्रतिस्पर्धा तेज हो रही है।">
+                                    Netflix and Amazon Prime ramp up regional-language shows and films as competition in
+                                    India’s entertainment market intensifies.</p>
+                                <div class="social-share" role="region" aria-label="Share Streaming story">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=Streaming%20Trends&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+
+                            <!-- Campus Voices -->
+                            <article class="world-story">
+                                <h3 data-en="From coding to campaigning — Gen Z leads innovation"
+                                    data-hi="कोडिंग से अभियान तक — जेन Z नवाचार का नेतृत्व कर रही है">From coding to
+                                    campaigning — Gen Z leads innovation</h3>
+                                <p data-en="Students across India are turning creativity into change, launching youth-driven projects on climate, gender equality, and technology for social good."
+                                    data-hi="पूरे भारत के छात्र रचनात्मकता को बदलाव में बदल रहे हैं, जलवायु, लिंग समानता और प्रौद्योगिकी पर युवा-चालित परियोजनाएं लॉन्च कर रहे हैं सामाजिक भलाई के लिए।">
+                                    Students across India are turning creativity into change, launching youth-driven
+                                    projects on climate, gender equality, and technology for social good.</p>
+                                <div class="social-share" role="region" aria-label="Share Gen Z story">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=GenZ%20Innovation&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+
+                            <article class="world-story">
+                                <h3 data-en="Student podcast series gives youth a voice on social change"
+                                    data-hi="छात्र पॉडकास्ट श्रृंखला युवाओं को सामाजिक परिवर्तन पर आवाज देती है">Student
+                                    podcast series gives youth a voice on social change</h3>
+                                <p data-en="A Mumbai-based group of journalism students launches “Echoed,” India’s first youth-led podcast exploring education, equality, and the future of work."
+                                    data-hi="मुंबई-आधारित पत्रकारिता छात्रों का एक समूह “इकोड” लॉन्च करता है, भारत का पहला युवा-नेतृत्व वाला पॉडकास्ट जो शिक्षा, समानता और काम के भविष्य की खोज करता है।">
+                                    A Mumbai-based group of journalism students launches “Echoed,” India’s first
+                                    youth-led podcast exploring education, equality, and the future of work.</p>
+                                <div class="social-share" role="region" aria-label="Share Podcast story">
+                                    <span data-en="Share:" data-hi="शेयर करें:">Share:</span>
+                                    <a href="https://twitter.com/intent/tweet?text=Youth%20Podcast&url=https://newszoid.com"
+                                        class="share-btn twitter" aria-label="Share on Twitter"></a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://newszoid.com"
+                                        class="share-btn facebook" aria-label="Share on Facebook"></a>
+                                    <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://newszoid.com"
+                                        class="share-btn linkedin" aria-label="Share on LinkedIn"></a>
+                                    <button class="share-btn comment" aria-label="Add Comment"></button>
+                                    <button class="share-btn bookmark" aria-label="Bookmark"
+                                        title="Save for later">☆</button>
+                                    <button class="share-btn tts" aria-label="Listen">🔊</button>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Login Modal -->
+                <div id="loginModal" class="modal" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+                    <div class="modal-content">
+                        <span class="close" aria-label="Close login modal">&times;</span>
+                        <h2 id="loginModalTitle" data-en="Login to Newszoid Chronicle"
+                            data-hi="न्यूज़ॉइड क्रॉनिकल में लॉगिन करें">Login to Newszoid Chronicle</h2>
+
+                        <!-- Social Login Buttons -->
+                        <div class="social-login">
+                            <button class="social-btn google-login">
+                                <img data-src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+                                    alt="Google" class="lazy" loading="lazy">
+                                <span data-en="Continue with Google" data-hi="गूगल के साथ जारी रखें">Continue with
+                                    Google</span>
+                            </button>
+                            <button class="social-btn microsoft-login">
+                                <img data-src="https://img.icons8.com/color/48/microsoft.png" alt="Microsoft"
+                                    class="lazy" loading="lazy">
+                                <span data-en="Continue with Microsoft" data-hi="माइक्रोसॉफ्ट के साथ जारी रखें">Continue
+                                    with Microsoft</span>
+                            </button>
+                            <button class="social-btn facebook-login">
+                                <img data-src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook"
+                                    class="lazy" loading="lazy">
+                                <span data-en="Continue with Facebook" data-hi="फेसबुक के साथ जारी रखें">Continue with
+                                    Facebook</span>
+                            </button>
+                        </div>
+                        <div class="divider" data-en="OR" data-hi="या">OR</div>
+
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <input type="email" id="loginEmail" placeholder="Email" data-en-placeholder="Email"
+                                    data-hi-placeholder="ईमेल" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="password" id="loginPassword" placeholder="Password"
+                                    data-en-placeholder="Password" data-hi-placeholder="पासवर्ड" required>
+                            </div>
+                            <button type="submit" class="submit-btn" data-en="Login" data-hi="लॉगिन करें">Login</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Profile Modal -->
+                <div id="profileModal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <button class="close">&times;</button>
+                        <h2 id="profileName">Profile</h2>
+                        <section>
+                            <h3>Saved Articles</h3>
+                            <div id="savedArticlesList"></div>
+                        </section>
+                        <section>
+                            <h3>Followed Topics</h3>
+                            <div id="profileTopics"></div>
+                        </section>
+                        <section>
+                            <h3>Competitions</h3>
+                            <div id="profileCompetitions"></div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    <script src="bookmark.js" defer></script>
+    </body>
+
+</html>
